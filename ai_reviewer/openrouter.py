@@ -20,7 +20,7 @@ class OpenRouterError(RuntimeError):
 def review_with_model(
         model: str,
         system_prompt:str,
-        user_messege: str,
+        user_message: str,
         api_key: str,
         timeout: int = 120,
 ) -> str:
@@ -33,7 +33,7 @@ def review_with_model(
         "model": model,
         "messages": [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_messege},
+            {"role": "user", "content": user_message},
         ],
         "temperature": 0,
         "max_tokens": 2048,
