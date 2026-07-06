@@ -21,7 +21,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install ai-code-reviewer
-        run: pip install ai-code-reviewer
+        run: pip install .
 
       - name: Run AI review
         env:
