@@ -34,7 +34,7 @@ _EXTENSION_TO_LANGUAGE = {
 
 def _guess_language(filename: str) -> str:
     for ext, lang in _EXTENSION_TO_LANGUAGE.items():
-        if filename.endwith(ext):
+        if filename.endswith(ext):
             return lang
     return "unknown"
 
