@@ -69,3 +69,5 @@ def review_with_model(
 
     if content is None:
         raise OpenRouterError(f"Model returned empty content: {data}")
+
+    return content
