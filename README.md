@@ -1,0 +1,26 @@
+# ai-code-reviewer
+
+AI-powered code review for GitHub pull requests. Reviews only the
+changed lines in a PR, posts findings as inline comments, and
+talks to any model through OpenRouter — proprietary or open source.
+
+## Installation
+
+    pip install -e .
+
+## Setup in a GitHub repo
+
+1. Copy `.github/workflows/ai-review.yml` into your repo.
+2. Add a repository secret `OPENROUTER_API_KEY`.
+3. (Optional) Set repository variable `AI_REVIEW_MODEL` to override the default model.
+4. Open a pull request — the workflow runs automatically.
+
+## Running tests
+
+    pip install -e ".[dev]"
+    pytest tests/test_parser.py -v
+
+## Testing across models
+
+    export OPENROUTER_API_KEY=sk-or-...
+    python tests/test_models.py
