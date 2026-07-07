@@ -14,15 +14,17 @@ import urllib.request
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
+
 class OpenRouterError(RuntimeError):
     """Raised when the OpenRouter API call fails or returns no content."""
 
+
 def review_with_model(
-        model: str,
-        system_prompt:str,
-        user_messege: str,
-        api_key: str,
-        timeout: int = 120,
+    model: str,
+    system_prompt: str,
+    user_message: str,
+    api_key: str,
+    timeout: int = 120,
 ) -> str:
     """Send a single review request and return the raw model output text.
 
@@ -33,7 +35,7 @@ def review_with_model(
         "model": model,
         "messages": [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_messege},
+            {"role": "user", "content": user_message},
         ],
         "temperature": 0,
         "max_tokens": 2048,
@@ -41,8 +43,8 @@ def review_with_model(
 
     req = urllib.request.Request(
         OPENROUTER_URL,
-        data = json.dumps(payload).encode("utf-8"),
-        method = "POST",
+        data=json.dumps(payload).encode("utf-8"),
+        method="POST",
     )
     req.add_header("Authorization", f"Bearer {api_key}")
     req.add_header("Content-Type", "application/json")
@@ -50,12 +52,22 @@ def review_with_model(
     req.add_header("X-Title", "ai-code-reviewer")
 
     try:
-        with urllib.request.urlopen(req, timeout = timeout) as resp:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
             data = json.loads(resp.read())
     except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        raise OpenRouterError(
+            f"OpenRouter request failed with {exc.code}: {detail}"
+        ) from exc
+    except urllib.error.URLError as exc:
         raise OpenRouterError(f"OpenRouter request failed: {exc}") from exc
-    
+
     try:
-        return data["choices"][0]["message"]["content"]
+        content = data["choices"][0]["message"]["content"]
     except (KeyError, IndexError) as exc:
         raise OpenRouterError(f"Unexpected OpenRouter response shape: {data}") from exc
+
+    if content is None:
+        raise OpenRouterError(f"Model returned empty content: {data}")
+
+    return content

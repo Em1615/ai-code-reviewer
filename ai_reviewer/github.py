@@ -28,10 +28,10 @@ class ChangedFile:
     patch: str | None
 
 def _request(method: str, url: str, token: str, body: dict | None = None) -> dict | list:
-    data = json.dumps(body).endcode("utf-8") if body is not None else None
+    data = json.dumps(body).encode("utf-8") if body is not None else None
     req = urllib.request.Request(url, data=data, method=method)
     req.add_header("Authorization", f"Bearer {token}")
-    req.add_header("Accept", "application/vnd.github.+json")
+    req.add_header("Accept", "application/vnd.github+json")
     req.add_header("X-GitHub-Api-Version", "2022-11-28")
     if data is not None:
         req.add_header("Content-Type", "application/json")
@@ -74,7 +74,7 @@ def get_changed_files(
 def get_latest_commit_sha(owner: str, repo: str, pull_number: str, token: str) -> str:
     url = f"{GITHUB_API_URL}/repos/{owner}/{repo}/pulls/{pull_number}"
     pr = _request("GET", url, token)
-    return ["head"]["sha"]
+    return pr["head"]["sha"]
 
 @dataclass
 class InlineComment:
@@ -82,7 +82,7 @@ class InlineComment:
     line: int
     body: str
 
-def post_inline_comments(
+def post_review_comments(
         owner: str,
         repo: str,
         pull_number: str,
