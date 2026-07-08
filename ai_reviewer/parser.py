@@ -19,6 +19,7 @@ from dataclasses import dataclass
 _VALID_SEVERITIES = {"CRITICAL", "HIGH", "MEDIUM", "LOW"}
 _VALID_CATEGORIES = {
     "BUG",
+    "LOGIC",
     "SECURITY",
     "PERFORMANCE",
     "RELIABILITY",
@@ -29,6 +30,7 @@ _VALID_CATEGORIES = {
     "TYPE",
 }
 
+# [SEVERITY] FILE:LINE <dash> CATEGORY: description
 _ISSUE_RE = re.compile(
     r"^\[(?P<severity>[A-Z]+)\]\s*"
     r"(?P<file>[^:]+):(?P<line>\d+)\s*"
@@ -51,17 +53,17 @@ class Issue:
     def format_comment(self) -> str:
         return f"**[{self.severity}] {self.category}**: {self.description}"
 
+
 def parse_issues(raw_output: str) -> list[Issue]:
     """Parse model output into a list of Issue objects.
 
     Returns an empty list both when the model says NO ISSUES FOUND and
-    when nothing parseable is found at all — callers should not
-    distinguish between "clean" and "garbage output" differently, since
-    in both cases there is nothing actionable to post.
+    when nothing parseable is found at all.
     """
     text = raw_output.strip()
     if not text or text == NO_ISSUES_MARKER:
         return []
+
     issues: list[Issue] = []
     for line in text.splitlines():
         line = line.strip()
@@ -82,11 +84,11 @@ def parse_issues(raw_output: str) -> list[Issue]:
 
         issues.append(
             Issue(
-                severity = severity,
-                file = match.group("file").strip(),
-                line = int(match.group("line")),
-                category = category,
-                description = match.group("description").strip(),
+                severity=severity,
+                file=match.group("file").strip(),
+                line=int(match.group("line")),
+                category=category,
+                description=match.group("description").strip(),
             )
         )
 
