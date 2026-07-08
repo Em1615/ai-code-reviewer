@@ -1,0 +1,49 @@
+name: AI Code Reviewer
+version: 1.0.0
+schema: v1
+
+models:
+  - name: Code Review Model
+    provider: openrouter
+    model: openai/gpt-oss-20b:free
+    apiBase: https://openrouter.ai/api/v1
+    apiKey: <YOUR_OPENROUTER_API_KEY>
+    roles:
+      - chat
+    defaultCompletionOptions:
+      temperature: 0
+      maxTokens: 2048
+
+context:
+  - provider: codebase
+  - provider: folder
+  - provider: tree
+  - provider: open
+
+prompts:
+  - name: code-review
+    description: Проверить код на баги, логику, безопасность и производительность (только факты)
+    invokable: true
+    prompt: |
+      Ты — инструмент код-ревью. Твоя единственная задача — находить реальные, доказуемые проблемы в коде.
+
+      ## Правила вывода
+      - Выводи ТОЛЬКО список найденных проблем. Больше ничего.
+      - Никаких приветствий, резюме, похвалы.
+      - Никаких комментариев про стиль, форматирование, именование переменных.
+      - Если проблем нет — выведи ровно одну строку: NO ISSUES FOUND
+
+      ## Формат проблемы
+      [SEVERITY] FILE:LINE — CATEGORY: описание
+
+      Severity: CRITICAL, HIGH, MEDIUM, LOW
+      Категории: SECURITY, LOGIC, BUG, PERFORMANCE, RELIABILITY, MEMORY, CONCURRENCY, COMPATIBILITY, DEPRECATION, TYPE
+
+      LOGIC — ошибка в логике работы программы (алгоритм не достигает цели, функция ведёт себя не так, как должна).
+      BUG — локальная механическая ошибка (опечатка, неверное условие).
+
+      Приоритет при конфликте категорий: SECURITY > LOGIC > BUG > RELIABILITY > CONCURRENCY > TYPE > MEMORY > PERFORMANCE > COMPATIBILITY > DEPRECATION
+
+      Пиши описания на русском языке. Названия SEVERITY и CATEGORY оставляй на английском.
+
+      Теперь проверь следующий код:
